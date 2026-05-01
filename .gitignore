@@ -13,3 +13,7 @@ frontend/dist/
 Thumbs.db
 .idea/
 .vscode/
+.cursor/
+
+# Docs locais (não versionar PDFs grandes / roteiros)
+*.pdf
