@@ -8,7 +8,7 @@ from sqlmodel import Session, select
 from app.config import CHECKPOINTS_DIR, UPLOADS_AUDIO_DIR
 from app.db import engine, init_db
 from app.models import FlashCard
-from app.routers import activities, articles, cards, checkpoints, streak, weekly
+from app.routers import activities, articles, cards, checkpoints, streak, weekly, youtube_transcript
 
 
 @asynccontextmanager
@@ -48,6 +48,7 @@ app.include_router(activities.router)
 app.include_router(weekly.router)
 app.include_router(articles.router)
 app.include_router(checkpoints.router)
+app.include_router(youtube_transcript.router)
 
 
 @app.get("/api/health")

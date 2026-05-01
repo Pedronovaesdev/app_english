@@ -3,6 +3,19 @@ export type ArticlePhraseItem = {
   context: string;
 };
 
+export type YoutubeTranscriptLine = {
+  text: string;
+  start: number;
+  duration: number;
+};
+
+export type YoutubeTranscriptResponse = {
+  video_id: string;
+  language_code: string;
+  is_generated: boolean;
+  lines: YoutubeTranscriptLine[];
+};
+
 export type FlashCard = {
   id: number;
   front: string;

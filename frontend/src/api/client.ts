@@ -1,4 +1,10 @@
-import type { ArticlePhraseItem, FlashCard, StreakBundle, WeeklyToday } from "./types";
+import type {
+  ArticlePhraseItem,
+  FlashCard,
+  StreakBundle,
+  WeeklyToday,
+  YoutubeTranscriptResponse,
+} from "./types";
 
 const json = async <T>(path: string, init?: RequestInit): Promise<T> => {
   const res = await fetch(path, {
@@ -35,6 +41,10 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ phrases, source }),
     }),
+  youtubeTranscript: (videoId: string, lang = "en") => {
+    const q = new URLSearchParams({ video_id: videoId, lang });
+    return json<YoutubeTranscriptResponse>(`/api/youtube/transcript?${q}`);
+  },
   uploadCheckpoint: async (weekStart: string, blob: Blob, filename: string) => {
     const fd = new FormData();
     fd.append("week_start", weekStart);
