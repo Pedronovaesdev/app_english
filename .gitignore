@@ -2,7 +2,17 @@
 backend/.venv/
 backend/**/__pycache__/
 *.py[cod]
+
+# SQLite e dados locais (flashcards, gravações, checkpoints — não versionar)
 backend/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Segredos / ambiente local
+.env
+.env.*
+!.env.example
 
 # Node
 frontend/node_modules/
@@ -14,6 +24,7 @@ Thumbs.db
 .idea/
 .vscode/
 .cursor/
+.obsidian/
 
 # Docs locais (não versionar PDFs grandes / roteiros)
 *.pdf
