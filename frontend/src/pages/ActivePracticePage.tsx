@@ -1,11 +1,6 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { api } from "../api/client";
-
-const DIALOGUES = [
-  { speaker: "A", line: "We're seeing strong drawdowns across the book — how do you want to hedge?" },
-  { speaker: "B", line: "Shift duration into the belly and keep gamma flat until OPEC prints." },
-  { speaker: "A", line: "Copy that. I'll leg into the strangle and update you after the rig count." },
-];
+import { DIALOGUE_BLOCKS } from "../data/activePracticeDialogues";
 
 /** Segunda-feira da semana corrente (data local). */
 function weekStartISO(d = new Date()) {
@@ -17,11 +12,14 @@ function weekStartISO(d = new Date()) {
 }
 
 export function ActivePracticePage() {
+  const [blockId, setBlockId] = useState(DIALOGUE_BLOCKS[0]?.id ?? "travel");
   const [recording, setRecording] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
   const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
+
+  const block = useMemo(() => DIALOGUE_BLOCKS.find((b) => b.id === blockId) ?? DIALOGUE_BLOCKS[0], [blockId]);
 
   const start = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -61,61 +59,95 @@ export function ActivePracticePage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-8 pb-10">
       <div>
         <h2 className="text-2xl font-bold text-white">Active Practice</h2>
         <p className="text-sm text-slate-400">
-          Diálogos de contexto profissional · grava a tua resposta e guarda localmente ou envia para o check-point.
+          Escolhe um bloco temático, lê o diálogo em voz alta ou improvisa a tua linha, grava e envia para o check-point
+          semanal.
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          Cenários inspirados em materiais públicos de ESL (viagem, hotel, restaurante/café, trabalho, saúde, lojas) e
+          em vocabulário técnico de ML, arquitetura de software e energia — formulados para prática B1–B2.
         </p>
       </div>
 
-      <ul className="space-y-3 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
-        {DIALOGUES.map((d, i) => (
-          <li key={i} className="text-sm leading-relaxed text-slate-200">
-            <span className="font-semibold text-ember-400">{d.speaker}:</span> {d.line}
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex flex-wrap gap-2">
-        {!recording ? (
-          <button
-            type="button"
-            className="rounded-lg bg-ember-500 px-4 py-2 text-sm font-semibold text-ink-950 hover:bg-ember-400"
-            onClick={() => void start()}
-          >
-            Gravar resposta
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
-            onClick={stop}
-          >
-            Parar
-          </button>
-        )}
-        {saved && (
-          <>
-            <a
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
-              href={saved}
-              download="checkpoint-local.webm"
+      <div>
+        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-slate-500">Blocos de conversa</p>
+        <div className="flex flex-wrap gap-2">
+          {DIALOGUE_BLOCKS.map((b) => (
+            <button
+              key={b.id}
+              type="button"
+              onClick={() => setBlockId(b.id)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:text-sm ${
+                b.id === blockId
+                  ? "border-ember-500 bg-ember-500/20 text-ember-200"
+                  : "border-slate-700 bg-slate-900/50 text-slate-300 hover:border-slate-500 hover:bg-slate-800"
+              }`}
             >
-              Descarregar local
-            </a>
+              {b.title}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {block && (
+        <section className="rounded-xl border border-slate-800 bg-slate-900/40 p-5">
+          <h3 className="text-lg font-semibold text-white">{block.title}</h3>
+          <p className="mb-4 text-sm text-slate-400">{block.subtitle}</p>
+          <ul className="space-y-3">
+            {block.lines.map((d, i) => (
+              <li key={i} className="text-sm leading-relaxed text-slate-200">
+                <span className="font-semibold text-ember-400">{d.speaker}:</span> {d.line}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="space-y-3 rounded-xl border border-slate-800 bg-slate-950/40 p-5">
+        <h3 className="text-sm font-semibold text-slate-200">Gravação</h3>
+        <div className="flex flex-wrap gap-2">
+          {!recording ? (
             <button
               type="button"
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
-              onClick={() => void upload()}
+              className="rounded-lg bg-ember-500 px-4 py-2 text-sm font-semibold text-ink-950 hover:bg-ember-400"
+              onClick={() => void start()}
             >
-              Enviar check-point (API)
+              Gravar resposta
             </button>
-          </>
-        )}
-      </div>
-      {uploadMsg && <p className="text-sm text-emerald-400">{uploadMsg}</p>}
-      {saved && <audio className="w-full" controls src={saved} />}
+          ) : (
+            <button
+              type="button"
+              className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600"
+              onClick={stop}
+            >
+              Parar
+            </button>
+          )}
+          {saved && (
+            <>
+              <a
+                className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+                href={saved}
+                download="checkpoint-local.webm"
+              >
+                Descarregar local
+              </a>
+              <button
+                type="button"
+                className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+                onClick={() => void upload()}
+              >
+                Enviar check-point (API)
+              </button>
+            </>
+          )}
+        </div>
+        {uploadMsg && <p className="text-sm text-emerald-400">{uploadMsg}</p>}
+        {saved && <audio className="w-full" controls src={saved} />}
+      </section>
     </div>
   );
 }
