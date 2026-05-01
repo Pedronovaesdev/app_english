@@ -1,3 +1,8 @@
+export type ArticlePhraseItem = {
+  word: string;
+  context: string;
+};
+
 export type FlashCard = {
   id: number;
   front: string;

@@ -1,4 +1,4 @@
-import type { FlashCard, StreakBundle, WeeklyToday } from "./types";
+import type { ArticlePhraseItem, FlashCard, StreakBundle, WeeklyToday } from "./types";
 
 const json = async <T>(path: string, init?: RequestInit): Promise<T> => {
   const res = await fetch(path, {
@@ -24,6 +24,12 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ quality }),
     }),
+  importArticleItems: (items: ArticlePhraseItem[], source = "article") =>
+    json<{ created_ids: number[] }>("/api/articles/import", {
+      method: "POST",
+      body: JSON.stringify({ items, source }),
+    }),
+  /** Legado: uma linha = só a frente do cartão, verso vazio. */
   importArticlePhrases: (phrases: string[], source = "article") =>
     json<{ created_ids: number[] }>("/api/articles/import", {
       method: "POST",
